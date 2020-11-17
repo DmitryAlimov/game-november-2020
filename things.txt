@@ -1,0 +1,11 @@
+#title, type, min_lvl, max_lvl, cost, manacost, comb_defence_effect, dist_defence_effect, comb_damage_effect, dist_damage_effect, HP_effect, mana_effect, luck_effect, imagename, special_effect, passive_effect, image_scale_x, image_scale_y
+charm_of_life thing 0 100 65 30 0 0 0 0 0 0 0 charm_of_life.bmp heal none 70 70
+description
+
+steel_sword weapon 0 100 55 0 0 0 0 25 0 0 0 steel_sword.bmp none none 70 70
+The most common sword of the most common steel
+
+bow weapon 0 30 40 10 0 0 0 20 0 0 0 bow.bmp shoot_a_bow none 70 70
+Hits opponents at a distance
+
+

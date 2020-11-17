@@ -1,0 +1,31 @@
+#title, special_effect, imagename
+Swamp none none.bmp
+move send_invent nothing 
+Market Citadel
+none
+none
+The impenetrable swamps exude an eerie stench. Careful in the quagmire!
+
+Market none none.bmp
+move trade send_invent nothing trade_rand nothing
+Swamp Citadel
+charm_of_life steel_sword bow
+none
+Here you can buy or sell your goods
+
+Citadel none none.bmp
+move show_mission check_mission nothing
+Swamp Abandoned_mountain_village
+none
+citadel_guard citadel_guard archer
+Hello, knight do you want to take on a mission?
+
+Abandoned_mountain_village none none.bmp
+move fight_rand send_invent nothing
+Citadel
+none
+none
+Beware!
+
+
+

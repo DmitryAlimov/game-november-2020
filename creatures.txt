@@ -1,0 +1,7 @@
+#title, type,  HP, defence, damage, min_lvl, special_effect, final_effect, imagename, image_scale_x, image_scale_y
+citadel_guard human 50 5 10 0 none none citadel_guard.bmp 200 200
+Melee master
+
+archer human 40 0 20 0 none none archer.bmp 200 200
+Attacks from afar
+

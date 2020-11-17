@@ -1,0 +1,4 @@
+#Title, location, description
+Citadel
+Abandoned_village
+Go to an abandoned mountain village and kill the renegades who escaped from service on guard
