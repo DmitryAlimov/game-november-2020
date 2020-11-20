@@ -1,0 +1,3 @@
+#title, title_action, time_type, duration
+none_effect none_action start_global_turn const
+

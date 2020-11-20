@@ -1,28 +1,32 @@
-#title, special_effect, imagename
-Swamp none none.bmp
+#title, imagename / actions / move_idx / trade_idx / guard_idx / effects / description
+Swamp none.bmp
 move send_invent nothing 
 Market Citadel
 none
 none
+none
 The impenetrable swamps exude an eerie stench. Careful in the quagmire!
 
-Market none none.bmp
+Market none.bmp
 move trade send_invent nothing trade_rand nothing
 Swamp Citadel
 charm_of_life steel_sword bow
 none
+none
 Here you can buy or sell your goods
 
-Citadel none none.bmp
+Citadel none.bmp
 move show_mission check_mission nothing
 Swamp Abandoned_mountain_village
 none
 citadel_guard citadel_guard archer
+none
 Hello, knight do you want to take on a mission?
 
-Abandoned_mountain_village none none.bmp
+Abandoned_mountain_village none.bmp
 move fight_rand send_invent nothing
 Citadel
+none
 none
 none
 Beware!

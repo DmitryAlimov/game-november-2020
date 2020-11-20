@@ -1,6 +1,21 @@
-#
-Arktur Arktur.png Citadel
+#name, imagename, loc / HP_max, money, mana_max, dist_damage, comb_damage, dist_defence, comb_defence / flexibility, witchery, fortitude, resistance, recovery, diplomaty / level, EXP, HP, mana / inventory / effects
+Arktur Arktur.png Market
+100 100 100 10 15 2 3
+5 4 3 2 1 6 7
+1 0 100 100
+steel_sword
+none_effect
 
 Lira Lira.png Citadel
+100 100 100 10 15 2 3
+5 4 3 2 1 6 7
+1 0 100 100
+steel_sword
+none_effect
 
 Walter Walter.png Citadel
+100 100 100 10 15 2 3
+5 4 3 2 1 6 7
+1 0 100 100
+charm_of_life
+none_effect

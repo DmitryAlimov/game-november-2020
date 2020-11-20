@@ -1,0 +1,8 @@
+# time_types
+start_global_turn
+start_hero_action
+start_fight
+start_fight_turn
+enemy_dies
+hero_atack
+enemy_atack

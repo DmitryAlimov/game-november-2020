@@ -70,7 +70,7 @@ class ObjList:
         if len(self.arr) > 0:
             for qq in range(len(self.arr)):
                 if qq < len(self.arr):
-                    if self.arr[qq] == str_inp:
+                    if self.arr[qq].title == str_inp:
                         del self.arr[qq]
     def len(self):
         return len(self.arr)
@@ -78,13 +78,15 @@ class ObjList:
         for q in range(len(self.arr)):
             if self.arr[q].title == inp:
                 break
-        outp = Creature(title=self.arr[q].title, type=self.arr[q].type, min_lvl=self.arr[q].min_lvl, HP=self.arr[q].HP, defence=self.arr[q].defence, damage=self.arr[q].damage, special_effect=self.arr[q].special_effect, final_effect=self.arr[q].final_effect, imagename=self.arr[q].imagename, image_scale_x=self.arr[q].image_scale_x, image_scale_y=self.arr[q].image_scale_y, description=self.arr[q].description)
+        outp = Creature(title=self.arr[q].title, type=self.arr[q].type, min_lvl=self.arr[q].min_lvl, HP=self.arr[q].HP, defence=self.arr[q].defence, damage=self.arr[q].damage, imagename=self.arr[q].imagename, description=self.arr[q].description)
+        for w in range(self.arr[q].effects.len()):
+            outp.effects.add(self.arr[q].effects.arr[w])
         return outp
     def getLocation(self, inp):
         for q in range(len(self.arr)):
             if self.arr[q].title == inp:
                 break
-        outp = Location(title=self.arr[q].title, special_effect=self.arr[q].special_effect, imagename=self.arr[q].imagename, description=self.arr[q].description)
+        outp = Location(title=self.arr[q].title, imagename=self.arr[q].imagename, description=self.arr[q].description)
         for w in range(self.arr[q].actions.len()):
             outp.actions.add(self.arr[q].actions.arr[w])
         for w in range(self.arr[q].move_idx.len()):
@@ -93,12 +95,26 @@ class ObjList:
             outp.trade_idx.add(self.arr[q].trade_idx.arr[w])
         for w in range(self.arr[q].guard_idx.len()):
             outp.guard_idx.add(self.arr[q].guard_idx.arr[w])
+        for w in range(self.arr[q].effects.len()):
+            outp.effects.add(self.arr[q].effects.arr[w])
         return outp
     def getThing(self, inp):
         for q in range(len(self.arr)):
             if self.arr[q].title == inp:
                 break
-        outp =  Thing(title=self.arr[q].title, type=self.arr[q].type, min_lvl=self.arr[q].min_lvl, max_lvl=self.arr[q].max_lvl, cost=self.arr[q].cost, manacost=self.arr[q].manacost, dist_defence_effect=self.arr[q].dist_defence_effect, comb_defence_effect=self.arr[q].comb_defence_effect, dist_damage_effect=self.arr[q].dist_damage_effect, comb_damage_effect=self.arr[q].comb_damage_effect, HP_effect=self.arr[q].HP_effect, mana_effect=self.arr[q].mana_effect, luck_effect=self.arr[q].luck_effect, imagename=self.arr[q].imagename, special_effect=self.arr[q].special_effect, passive_effect=self.arr[q].passive_effect, image_scale_x=self.arr[q].image_scale_x, image_scale_y=self.arr[q].image_scale_y, description=self.arr[q].description)
+        outp = Thing(title=self.arr[q].title, type=self.arr[q].type, min_lvl=self.arr[q].min_lvl, max_lvl=self.arr[q].max_lvl, cost=self.arr[q].cost, manacost=self.arr[q].manacost, dist_defence_effect=self.arr[q].dist_defence_effect, comb_defence_effect=self.arr[q].comb_defence_effect, dist_damage_effect=self.arr[q].dist_damage_effect, comb_damage_effect=self.arr[q].comb_damage_effect, HP_effect=self.arr[q].HP_effect, mana_effect=self.arr[q].mana_effect, luck_effect=self.arr[q].luck_effect, imagename=self.arr[q].imagename, description=self.arr[q].description)
+        for w in range(self.arr[q].effects.len()):
+            outp.effects.add(self.arr[q].effects.arr[w])
+        for w in range(self.arr[q].actions.len()):
+            outp.actions.add(self.arr[q].actions.arr[w])
+        for w in range(self.arr[q].fight_actions.len()):
+            outp.fight_actions.add(self.arr[q].fight_actions.arr[w])
+        return outp
+    def getEffect(self, inp):
+        for q in range(len(self.arr)):
+            if self.arr[q].title == inp:
+                break
+        outp = effect(title=self.arr[q].title, title_action=self.arr[q].title_action, time_type=self.arr[q].time_type, duration=self.arr[q].duration)
         return outp
     def get_ptr(self, inp):
         return self.arr[inp]
@@ -121,6 +137,8 @@ class Hero:
     def __init__(self, name, imagename, loc):
         self.inventory = ObjList()
         self.actions = ObjList()
+        self.effects = ObjList()
+        self.delay = 10
         self.name = name
         self.EXP = 0
         self.loc = loc
@@ -134,7 +152,12 @@ class Hero:
         self.comb_damage = 10
         self.dist_defence = 1
         self.comb_defence = 1
-        self.luck = 30
+        self.flexibility = 10
+        self.witchery = 10
+        self.fortitude = 10
+        self.resistance = 10
+        self.recovery = 10
+        self.diplomaty = 10
         self.coex_start = np.zeros(3)
         self.coex = np.zeros(3)
         self.inventory_save = ObjList()
@@ -148,6 +171,26 @@ class Hero:
         self.imagename = imagename
         self.image = pygame.image.load(imagename)
         self.image = pygame.transform.scale(self.image, (70, 70))
+    def get_main_parameters(self, HP_max, money, mana_max, dist_damage, comb_damage, dist_defence, comb_defence):
+        self.HP_max = HP_max
+        self.money = money
+        self.mana_max = mana_max
+        self.dist_damage = dist_damage
+        self.comb_damage = comb_damage
+        self.dist_defence = dist_defence
+        self.comb_defence = comb_defence
+    def get_sp_parameters(self, flexibility, witchery, fortitude, resistance, recovery, diplomaty):
+        self.flexibility = flexibility
+        self.witchery = flexibility
+        self.fortitude = fortitude
+        self.resistance = resistance
+        self.recovery = recovery
+        self.diplomaty = diplomaty
+    def get_curr_parameters(self, level, EXP, HP, mana):
+        self.level = level
+        self.EXP = EXP
+        self.HP = HP
+        self.mana = mana
     def draw(self, x, y):
         rect = self.image.get_rect(center=(x, y))
         screen.blit(self.image, rect)
@@ -169,25 +212,26 @@ class Hero:
         self.HP_max = self.HP_max + thing.HP_effect
         self.mana_max = self.HP_max + thing.mana_effect
         self.luck = self.luck + thing.luck_effect
-        self.inventory.add(inp)
+        self.inventory.add(thing)
         return 1
     def find_invent(self, inp):
         for q in range (len(self.inventory.arr)):
-            if (self.inventory.arr[q] == inp):
+            if (self.inventory.arr[q].title == inp):
                 return 1
         return -1
     def modify_invent(self, thing, mod):
-        for q in range(len(self.inventory.arr)):
-            if (self.inventory.arr[q] == thing):
+        return 1
+    ''' for q in range(self.inventory.len()):
+            if (self.inventory.arr[q].title == thing):
                 break
         if (q < self.inventory.len()):
-            modified_thing = Things.getThing(self.inventory.arr[q])
+            modified_thing = Things.getThing(self.inventory.arr[q].title)
 
-            '''modification'''
+            modification
             modified_thing.title = modified_thing.title + " " + mod
             if mod == "red":
                 modified_thing.comb_damage_effect = modified_thing.comb_damage_effect + 5
-            '''modification'''
+            modification
 
             Things.arr.append(modified_thing)
             self.money = self.money + modified_thing.cost
@@ -195,14 +239,14 @@ class Hero:
             if self.add_invent(modified_thing.title) == -1:
                 self.add_invent(thing)
                 TextMain.add_line('modification failed')
-                TextMain_out(2)
+                TextMain_out(2)'''
     def remove_invent(self, inp, time_type):
         if time_type == "const":
-            for q in range (len(self.inventory.arr)):
-                if (self.inventory.arr[q] == inp):
+            for q in range (self.inventory.len()):
+                if (self.inventory.arr[q].title == inp):
                     break
             thing = Things.getThing(inp)
-            if (thing.type == "ban") or (thing.type == "special"):
+            if (thing.type == "special"):
                 return -1
             self.comb_defence = self.comb_defence - thing.comb_defence_effect
             self.dist_defence = self.dist_defence - thing.dist_defence_effect
@@ -215,18 +259,18 @@ class Hero:
             self.inventory_save.delete(thing.title)
             return 1
         if time_type == "tmp":
-            for q in range (len(self.inventory.arr)):
-                if (self.inventory.arr[q] == inp):
+            for q in range (self.inventory.len()):
+                if (self.inventory.arr[q].title == inp):
                     break
             self.inventory.delete(inp)
             return 1
     def send_invent(self, inp, to_whoom):
         if h_coex_num() > 1:
-            for q in range(len(self.inventory.arr)):
-                if (self.inventory.arr[q] == inp):
+            for q in range(self.inventory.len()):
+                if (self.inventory.arr[q].title == inp):
                     break
-            if q < len(self.inventory.arr):
-                thing = Things.getThing(self.inventory.arr[q])
+            if q < self.inventory.len():
+                thing = self.inventory.arr[q]
                 Heroes[to_whoom].money = Heroes[to_whoom].money + thing.cost
                 if Heroes[to_whoom].add_invent(inp) == 1:
                     self.remove_invent(inp, "const")
@@ -243,11 +287,11 @@ class Hero:
                 TextMain.add_line("----" + str(q + 1))
                 Things.getThing(self.inventory.arr[q - 1].title).info()
             TextMain_out(0.25)
-            ch = choose(len(self.inventory.arr) + 1) - 1
+            ch = choose(self.inventory.len() + 1) - 1
             return ch
         return -1
     def use_invent(self):
-        print(self.name)
+        '''priint(self.name)
         TextMain.add_line("")
         TextMain.add_line("----0 back")
         update_graphics()
@@ -257,12 +301,12 @@ class Hero:
         update_graphics()
         ch = choose(len(self.inventory.arr) + 1)
         if ch > 0:
-            print()
-            print(self.inventory.arr[ch - 1])
+            priint()
+            priint(self.inventory.arr[ch - 1])
             inp_thing = Things.getThing(self.inventory.arr[ch - 1])
             if self.mana > inp_thing.manacost:
                 self.mana = self.mana - inp_thing.manacost
-                action(inp_thing.special_effect, '')
+                action(inp_thing.special_effect, '')'''
     def save_parameters(self):
         self.inventory_save.clear()
         for q in range(self.inventory.len()):
@@ -285,22 +329,30 @@ class Hero:
         self.dist_damage = self.dist_damage_save
         self.comb_defence = self.comb_defence_save
         self.dist_defence = self.dist_defence_save
-    def atack(self):
+    def atack(self, self_n):
+        self.delay = self.delay + 10
         TextMain.add_line("")
-        curr_parameters.chosen_enemy = choose_sp("enemy")
-        dmg = int(self.comb_damage*rand() - curr_parameters.Enemies.arr[curr_parameters.chosen_enemy].defence)
-        if dmg < 1:
-            dmg = 1
-        curr_parameters.Enemies.arr[curr_parameters.chosen_enemy].HP = curr_parameters.Enemies.arr[curr_parameters.chosen_enemy].HP - dmg
-        TextMain.add_line(self.name + " atacks: " + str(dmg) + " damage")
-        dmg = Creatures.getCreature(curr_parameters.chosen_enemy).damage - self.comb_defence
-        if dmg < 1:
-            dmg = 1
-        self.HP = self.HP - dmg
-        TextMain.add_line("you get: " + str(dmg) + " damage back")
-        TextMain.corr()
-        update_graphics()
-        time.sleep(2)
+        e = choose_sp("enemy")
+
+        curr_parameters.curr_action_owner_n = self_n
+        curr_parameters.curr_action_owner_type = "hero"
+        curr_parameters.Enemies_chosen.append(e)
+        curr_parameters.Enemies_dmg[e] = int(self.comb_damage*rand() - curr_parameters.Enemies.arr[curr_parameters.Enemies_chosen[0]].defence)
+        curr_parameters.effects("hero_atack")
+        action("damage", "")
+        TextMain.add_line(self.name + " atacks: " + str(curr_parameters.Enemies_dmg[e]) + " damage")
+        curr_parameters.clear_chosen()
+
+        curr_parameters.curr_action_owner_n = e
+        curr_parameters.curr_action_owner_type = "creature"
+        curr_parameters.Heroes_chosen.append(self_n)
+        curr_parameters.Heroes_dmg[self_n] = Creatures.getCreature(e).damage - self.comb_defence
+        curr_parameters.effects("enemy_atack")
+        action("damage", "")
+        TextMain.add_line(self.name + " get: " + str(curr_parameters.Heroes_dmg[self_n]) + " damage back")
+        curr_parameters.clear_chosen()
+
+        TextMain_out(1)
     def lvl_up(self):
         TextMain.add_line(self.name + " lvl up")
         self.level = self.level + 1
@@ -377,61 +429,60 @@ class Hero:
 
 
 class Creature:
-    def __init__(self, title, type,  HP, defence, damage, min_lvl, special_effect, final_effect, imagename, image_scale_x, image_scale_y, description):
+    def __init__(self, title, type,  HP, defence, damage, min_lvl, imagename, description):
+        self.effects = ObjList()
         self.title = title
         self.type = type
         self.HP = HP
+        self.delay = 10
         self.defence = defence
         self.damage = damage
         self.min_lvl = min_lvl
-        self.special_effect = special_effect
-        self.final_effect = final_effect
         self.imagename = imagename
-        self.image_scale_x = image_scale_x
-        self.image_scale_y = image_scale_y
         self.image = pygame.image.load(imagename)
-        self.image = pygame.transform.scale(self.image, (image_scale_x, image_scale_y))
+        self.image = pygame.transform.scale(self.image, (50, 50))
         self.description = description
     def draw(self, x, y):
         rect = self.image.get_rect(center=(x, y))
         screen.blit(self.image, rect)
     def info(self):
-        TextMain.add_line(str(self.title) + " " + str(self.HP) + " " + str(self.defence) + " " + str(self.damage) + " " + str(self.special_effect))
+        TextMain.add_line(str(self.title) + " " + str(self.HP) + " " + str(self.defence) + " " + str(self.damage) + " ")
         TextMain.add_line(self.description)
     def info_ent(self):
         TextEnemies.add_line(
-            str(self.title) + " " + str(self.HP) + " " + str(self.defence) + " " + str(self.damage) + " " + str(
-                self.special_effect))
+            str(self.title) + " " + str(self.HP) + " " + str(self.defence) + " " + str(self.damage) + " " )
         TextEnemies.add_line(self.description)
         TextEnemies.add_line("")
-    def atack_comb(self):
+    def atack(self, self_n):
+        self.delay = self.delay + 10
         h = rand_sp("fighting hero")
-        dmg = int(self.damage * rand() - Heroes[h].comb_defence)
-        if dmg < 1:
-            dmg = 1
-        Heroes[h].HP = Heroes[h].HP - dmg
-        TextMain.add_line(self.title + " atacks: " + str(dmg) + " damage")
-        dmg = int(Heroes[h].comb_damage * rand() - self.defence)
-        if dmg < 1:
-            dmg = 1
-        self.HP = self.HP - dmg
-        TextMain.add_line(Heroes[h].name + " defends: " + str(dmg) + " damage")
-        TextMain.corr()
-        update_graphics()
-        time.sleep(0.8)
-    def atack_dist(self):
-        h = rand_sp("fighting hero")
-        dmg = self.damage*rand() - Heroes[h].dist_defence
-        if dmg < 0:
-            dmg = 1
-        Heroes[h].HP = Heroes[h].HP - dmg
-        TextMain.add_line(self.title + " shoots: " + str(dmg) + " damage")
-        TextMain.corr()
-        update_graphics()
-        time.sleep(0.8)
+
+        curr_parameters.curr_action_owner_n = self_n
+        curr_parameters.curr_action_owner_type = "creature"
+        curr_parameters.Heroes_chosen.append(h)
+        curr_parameters.Heroes_dmg[h] = int(self.damage * rand() - Heroes[h].comb_defence)
+        curr_parameters.effects("enemy_atack")
+        action("damage", "")
+        TextMain.add_line(self.title + " atacks: " + str( curr_parameters.Heroes_dmg[h]) + " damage")
+        curr_parameters.clear_chosen()
+
+        if self.type != "dist":
+            curr_parameters.curr_action_owner_n = h
+            curr_parameters.curr_action_owner_type = "hero"
+            curr_parameters.Enemies_chosen.append(self_n)
+            curr_parameters.Enemies_dmg[self_n] = int(Heroes[h].comb_damage * rand() - self.defence)
+            curr_parameters.effects("hero_atack")
+            action("damage", "")
+            TextMain.add_line(Heroes[h].name + " defends: " + str(curr_parameters.Enemies_dmg[self_n]) + " damage")
+            curr_parameters.clear_chosen()
+
+        TextMain_out(0.8)
 
 class Thing:
-    def __init__(self, title, type, min_lvl, max_lvl, cost, manacost, comb_defence_effect, dist_defence_effect, comb_damage_effect, dist_damage_effect, HP_effect, mana_effect, luck_effect, imagename, special_effect, passive_effect, image_scale_x, image_scale_y, description):
+    def __init__(self, title, type, min_lvl, max_lvl, cost, manacost, comb_defence_effect, dist_defence_effect, comb_damage_effect, dist_damage_effect, HP_effect, mana_effect, luck_effect, imagename, description):
+        self.actions = ObjList()
+        self.fight_actions = ObjList()
+        self.effects = ObjList()
         self.title = title
         self.type = type
         self.min_lvl = min_lvl
@@ -445,13 +496,9 @@ class Thing:
         self.HP_effect = HP_effect
         self.mana_effect = mana_effect
         self.luck_effect = luck_effect
-        self.special_effect = special_effect
-        self.passive_effect = passive_effect
         self.imagename = imagename
         self.image = pygame.image.load(imagename)
-        self.image_scale_x = image_scale_x
-        self.image_scale_y = image_scale_y
-        self.image = pygame.transform.scale(self.image, (image_scale_x, image_scale_y))
+        self.image = pygame.transform.scale(self.image, (70, 70))
         self.description = description
     def draw(self, x, y):
         rect = self.image.get_rect(center=(x, y))
@@ -459,18 +506,18 @@ class Thing:
     def info(self):
         TextMain.add_line(self.title + "   lvl: " + str(self.min_lvl) + "-" + str(self.max_lvl) + " cost = " + str(self.cost))
         TextMain.add_line("      damage: +" + str(self.comb_damage_effect) + " defense = +" + str(self.comb_damage_effect) + " mana = +" + str(self.mana_effect) + " luck = +" + str(self.luck_effect))
-        TextMain.add_line("      special_effect" + self.special_effect + " manacost = " + str(self.manacost) + " " + self.passive_effect)
+        #TextMain.add_line("      special_effect" + self.special_effect + " manacost = " + str(self.manacost) + " " + self.passive_effect)
         TextMain.add_line(self.description)
 
 class Location:
-    def __init__(self, title, imagename, special_effect, description):
+    def __init__(self, title, imagename, description):
         self.title = title
         self.move_idx = ObjList()
         self.trade_idx = ObjList()
         self.guard_idx = ObjList()
         self.actions = ObjList()
+        self.effects = ObjList()
         self.imagename = imagename
-        self.special_effect = special_effect
         self.image_scale_x = int(WIDTH*0.5)
         self.image_scale_y = int((HEIGHT - 60)*0.42)
         self.image = pygame.image.load(imagename)
@@ -479,6 +526,14 @@ class Location:
     def draw(self, x, y):
         rect = self.image.get_rect(center=(x, y))
         screen.blit(self.image, rect)
+
+class effect:
+    def __init__(self, title, title_action, time_type, duration):
+        self.title = title
+        self.title_action = title_action
+        self.time_type = time_type
+        self.duration = duration
+
 #label
 class curr_parameters:
     def __init__(self):
@@ -488,24 +543,48 @@ class curr_parameters:
         self.back = pygame.image.load('back.jpg')
         self.back = pygame.transform.scale(self.back, (WIDTH, int(HEIGHT * 1.25)))
         self.rect = self.back.get_rect(center=(WIDTH / 2, HEIGHT / 2))
-        self.chosen_enemy = 0
+
         self.Heroes_fighting = []
         self.Enemies = ObjList()
         self.turn_cnt = 0
+        self.Enemies_chosen = []
+        self.Heroes_chosen = []
+        self.Enemies_dmg = np.zeros(100)
+        self.Heroes_dmg = np.zeros(3)
+        self.curr_effect_owner_type = ""
+        self.curr_effect_owner_n = -1
+        self.curr_effect_n = -1
+        self.curr_action_owner_type = ""
+        self.curr_action_owner_n = -1
+        self.curr_effect_time_type = ""
     def save_hcurr(self):
         self.h_curr_save = self.h_curr
     def load_hcurr(self):
         self.h_curr = self.h_curr_save
     def update(self, inp):
-        if inp == "start":
+        if inp == "start_global_turn":
+            lvl_up_check()
+            curr_parameters.Heroes_fighting = []
             for q in range(3):
+                if Heroes[q].loc == curr_parameters.fight_location:
+                    curr_parameters.Heroes_fighting.append(q)
                 for w in range(3):
                     if (Heroes[q].HP > 0) and (Heroes[w].HP > 0) and (Heroes[q].loc == Heroes[w].loc):
                         Heroes[q].coex_start[w] = 1
                     else:
                         Heroes[q].coex_start[w] = 0
-        if inp == "curr":
             for q in range(3):
+                '''if Heroes[q].luck > 30:
+                    Heroes[q].luck = Heroes[q].luck - 5
+                if Heroes[q].luck < 30:
+                    Heroes[q].luck = Heroes[q].luck + 5'''
+                if Heroes[q].mana < Heroes[q].mana_max:
+                    Heroes[q].mana = Heroes[q].mana + 1
+        if inp == "curr":
+            curr_parameters.Heroes_fighting = []
+            for q in range(3):
+                if Heroes[q].loc == curr_parameters.fight_location:
+                    curr_parameters.Heroes_fighting.append(q)
                 for w in range(3):
                     if (Heroes[q].HP > 0) and (Heroes[w].HP > 0) and (Heroes[q].loc == Heroes[w].loc):
                         Heroes[q].coex[w] = 1
@@ -516,14 +595,48 @@ class curr_parameters:
         for q in range(3):
             if Heroes[q].loc == self.fight_location:
                 self.Heroes_fighting.append(q)
-
+    def clear_chosen(self):
+        self.Enemies_chosen = []
+        self.Heroes_chosen = []
+        for q in range(100):
+            self.Enemies_dmg[q] = 0
+            if q < 3:
+                self.Heroes_dmg[q] = 0
+    def effects(self, inp_time_type):
+        self.curr_effect_owner_type = "hero"
         for q in range(3):
-            if Heroes[q].luck > 30:
-                Heroes[q].luck = Heroes[q].luck - 5
-            if Heroes[q].luck < 30:
-                Heroes[q].luck = Heroes[q].luck + 5
-            if Heroes[q].mana < Heroes[q].mana_max:
-                Heroes[q].mana = Heroes[q].mana + 1
+            self.curr_effect_owner_n = q
+            for w in range(Heroes[q].effects.len()):
+                if Heroes[q].effects.arr[w].time_type == inp_time_type:
+                    self.curr_effect_n = w
+                    action(Heroes[q].effects.arr[w].title_action, "")
+
+        self.curr_effect_owner_type = "thing"
+        for q in range(3):
+            for w in range(Heroes[q].inventory.len()):
+                self.curr_effect_owner_n = w
+                for e in range(Heroes[q].inventory.arr[w].effects.len()):
+                    if Heroes[q].inventory.arr[w].effects.arr[e].time_type == inp_time_type:
+                        self.curr_effect_n = e
+                        action(Heroes[q].inventory.arr[w].effects.arr[e].title_action, "")
+
+        self.curr_effect_owner_type = "creature"
+        for q in range(curr_parameters.Enemies.len()):
+            self.curr_effect_owner_n = q
+            for w in range(curr_parameters.Enemies.arr[q].effects.len()):
+                if curr_parameters.Enemies.arr[q].effects.arr[w].time_type == inp_time_type:
+                    self.curr_effect_n = w
+                    action(curr_parameters.Enemies.arr[q].effects.arr[w].title_action, "")
+
+        self.curr_effect_owner_type = "location"
+        for q in range(3):
+            self.curr_effect_owner_n = -1
+            location = Locations.getLocation(Heroes[q].loc)
+            for w in range(location.effects.len()):
+                if location.effects.arr[w].time_type == inp_time_type:
+                    self.curr_effect_n = w
+                    action(location.effects.arr[w].title_action, "")
+
 
 class Missions:
     def __init__(self):
@@ -573,6 +686,7 @@ keyinp = 0
 Creatures = ObjList()
 Locations = ObjList()
 Things = ObjList()
+Effects = ObjList()
 Missions = Missions()
 curr_parameters = curr_parameters()
 HeroStats = []
@@ -592,15 +706,27 @@ TextHeroesName.append(Text(line_max=10, width=50,size=15, color=CUSTOM_COLOR, x=
 
 
 #loading==============================================================================================================#
+file = open('effects.txt', 'r')
+q = 0
+for line in file:
+    if (q > 0) and (len(line) > 1):
+        inp = line.split()
+        inp_effect = effect(title=inp[0], title_action=inp[1], time_type=inp[2], duration=inp[3])
+        Effects.add(inp_effect)
+    q = q + 1
+
 file = open('creatures.txt', 'r')
 q = 0
 for line in file:
     if (q > 0) and (len(line) > 1):
         inp = line.split()
-        if q % 3 == 1:
-            inp_creature = Creature(title=inp[0], type=inp[1], HP=int(inp[2]), defence=int(inp[3]), damage=int(inp[4]), min_lvl=int(inp[5]), special_effect=inp[6], final_effect=inp[7],
-                            imagename=inp[8], image_scale_x=int(inp[9]), image_scale_y=int(inp[10]),  description='')
-        if q % 3 == 2:
+        if q % 4 == 1:
+            inp_creature = Creature(title=inp[0], type=inp[1], HP=int(inp[2]), defence=int(inp[3]), damage=int(inp[4]), min_lvl=int(inp[5]),
+                            imagename=inp[8], description='')
+        if q % 4 == 2:
+            for w in range(len(inp)):
+                inp_creature.effects.add(Effects.getEffect(inp[w]))
+        if q % 4 == 2:
             inp_creature.description = line
             Creatures.add(inp_creature)
     q = q + 1
@@ -610,9 +736,18 @@ q = 0
 for line in file:
     if (q > 0) and (len(line) > 1):
         inp = line.split()
-        if q % 3 == 1:
-            inp_thing = Thing(title=inp[0], type=inp[1], min_lvl=int(inp[2]), max_lvl=int(inp[3]), cost=int(inp[4]), manacost=int(inp[5]), comb_defence_effect=int(inp[6]), dist_defence_effect=int(inp[7]), comb_damage_effect=int(inp[8]), dist_damage_effect=int(inp[9]), HP_effect=int(inp[10]), mana_effect=int(inp[11]), luck_effect=int(inp[12]), imagename=inp[13], special_effect=inp[14], passive_effect=inp[15], image_scale_x=int(inp[16]), image_scale_y=int(inp[17]),  description='')
-        if q % 3 == 2:
+        if q % 6 == 1:
+            inp_thing = Thing(title=inp[0], type=inp[1], min_lvl=int(inp[2]), max_lvl=int(inp[3]), cost=int(inp[4]), manacost=int(inp[5]), comb_defence_effect=int(inp[6]), dist_defence_effect=int(inp[7]), comb_damage_effect=int(inp[8]), dist_damage_effect=int(inp[9]), HP_effect=int(inp[10]), mana_effect=int(inp[11]), luck_effect=int(inp[12]), imagename=inp[13],  description='')
+        if q % 6 == 2:
+            for w in range(len(inp)):
+                inp_thing.effects.add(Effects.getEffect(inp[w]))
+        if q % 6 == 3:
+            for w in range(len(inp)):
+                inp_thing.actions.add(inp[w])
+        if q % 6 == 4:
+            for w in range(len(inp)):
+                inp_thing.fight_actions.add(inp[w])
+        if q % 6 == 5:
             inp_thing.description = line
             Things.add(inp_thing)
     q = q + 1
@@ -622,21 +757,24 @@ q = 0
 for line in file:
     if (q > 0) and (len(line) > 1):
         inp = line.split()
-        if q % 7 == 1:
-            inp_location = Location(title=inp[0], special_effect=inp[1], imagename=inp[2], description='')
-        if q % 7 == 2:
+        if q % 8 == 1:
+            inp_location = Location(title=inp[0], imagename=inp[1], description='')
+        if q % 8 == 2:
             for w in range(len(inp)):
                 inp_location.actions.add(inp[w])
-        if q % 7 == 3:
+        if q % 8 == 3:
             for w in range(len(inp)):
                 inp_location.move_idx.add(inp[w])
-        if q % 7 == 4:
+        if q % 8 == 4:
             for w in range(len(inp)):
                 inp_location.trade_idx.add(inp[w])
-        if q % 7 == 5:
+        if q % 8 == 5:
             for w in range(len(inp)):
                 inp_location.guard_idx.add(inp[w])
-        if q % 7 == 6:
+        if q % 8 == 6:
+            for w in range(len(inp)):
+                inp_location.effects.add(Effects.getEffect(inp[w]))
+        if q % 8 == 7:
             inp_location.description = line
             Locations.add(inp_location)
     q = q + 1
@@ -658,8 +796,21 @@ q = 0
 for line in file:
     if (q > 0) and (len(line) > 1):
         inp = line.split()
-        if q % 2 == 1:
-            HeroStats.append(Hero(name=inp[0], imagename=inp[1], loc=inp[2]))
+        if q % 7 == 1:
+            inp_hero = Hero(name=inp[0], imagename=inp[1], loc=inp[2])
+        if q % 7 == 2:
+            inp_hero.get_main_parameters(HP_max=int(inp[0]), money=int(inp[1]), mana_max=int(inp[2]), dist_damage=int(inp[3]), comb_damage=int(inp[4]), dist_defence=int(inp[5]), comb_defence=int(inp[6]))
+        if q % 7 == 3:
+            inp_hero.get_sp_parameters(flexibility=int(inp[0]), witchery=int(inp[1]), fortitude=int(inp[2]), resistance=int(inp[3]), recovery=int(inp[4]), diplomaty=int(inp[5]))
+        if q % 7 == 4:
+            inp_hero.get_curr_parameters(level=int(inp[0]), EXP=int(inp[1]), HP=int(inp[2]), mana=int(inp[3]))
+        if q % 7 == 5:
+            for w in range(len(inp)):
+                inp_hero.inventory.add(Things.getThing(inp[w]))
+        if q % 7 == 6:
+            for w in range(len(inp)):
+                inp_hero.effects.add(Effects.getEffect(inp[w]))
+            HeroStats.append(inp_hero)
     q = q + 1
 for q in range(3):
     Heroes.append(HeroStats[q])
@@ -687,7 +838,7 @@ def update_Text():
     TextStats.add_line(" Damage: " + str(Heroes[curr_parameters.h_curr].comb_damage) + " (dist " + str(Heroes[curr_parameters.h_curr].comb_damage) + ")")
     TextStats.add_line(" Defence: " + str(Heroes[curr_parameters.h_curr].comb_defence) + " (dist " + str(Heroes[curr_parameters.h_curr].dist_defence) + ")")
     TextStats.add_line(" Money:   " + str(Heroes[curr_parameters.h_curr].money))
-    TextStats.add_line(" Luck:      " + str(Heroes[curr_parameters.h_curr].luck))
+#    TextStats.add_line(" Luck:      " + str(Heroes[curr_parameters.h_curr].luck))
 
     TextEnemies.clear()
     if curr_parameters.Enemies.len() > 0:
@@ -698,7 +849,7 @@ def update_Text():
     TextInventory.clear()
 
     for q in range(Heroes[curr_parameters.h_curr].inventory.len()):
-        TextInventory.add_line(Heroes[curr_parameters.h_curr].inventory.arr[q])
+        TextInventory.add_line(Heroes[curr_parameters.h_curr].inventory.arr[q].title)
 
     TextLocation.clear()
     TextLocation.add_line(Heroes[curr_parameters.h_curr].loc)
@@ -760,7 +911,7 @@ def update_graphics():
     curr_loc = Locations.getLocation(Heroes[curr_parameters.h_curr].loc)
     curr_loc.draw((WIDTH-200)/2, (HEIGHT)/4 + 10)
     for q in range(Heroes[curr_parameters.h_curr].inventory.len()):
-        Things.getThing(Heroes[curr_parameters.h_curr].inventory.arr[q]).draw(WIDTH/5*q + 65, HEIGHT - 42)
+        Things.getThing(Heroes[curr_parameters.h_curr].inventory.arr[q].title).draw(WIDTH/5*q + 65, HEIGHT - 42)
     for q in range(3):
         if q == curr_parameters.h_curr:
             Heroes[q].image = pygame.image.load(Heroes[q].imagename)
@@ -804,6 +955,35 @@ def action(action_title, inp):
         heal()
     if action_title == "shoot_a_bow":
         shoot_a_bow()
+    if action_title == "damage":
+        damage()
+    if action_title == "atack":
+        Heroes[curr_parameters.h_curr].atack(curr_parameters.h_curr)
+    if action_title == "escape":
+        move()
+
+def damage():
+    '''priint(" ")
+    priint("her")
+    for q in range(len(curr_parameters.Heroes_chosen)):
+        priint(curr_parameters.Heroes_chosen[q])
+    priint("en")
+    for q in range(len(curr_parameters.Enemies_chosen)):
+        priint(curr_parameters.Enemies_chosen[q])
+    priint(curr_parameters.curr_action_owner_type)
+    priint(curr_parameters.curr_action_owner_n)
+    priint("endmg")
+    for q in range(3):
+        priint(curr_parameters.Enemies_dmg[q])
+    priint("herdmg")
+    for q in range(3):
+        priint(curr_parameters.Heroes_dmg[q])'''
+
+    for q in range(100):
+        if q < curr_parameters.Enemies.len():
+            curr_parameters.Enemies.arr[q].HP = curr_parameters.Enemies.arr[q].HP - int(curr_parameters.Enemies_dmg[q])
+    for q in range(3):
+        Heroes[q].HP = Heroes[q].HP - int(curr_parameters.Heroes_dmg[q])
 
 def heal():
     for q in range(len(curr_parameters.Heroes_fighting)) :
@@ -817,7 +997,7 @@ def send_invent():
         TextMain.add_line("What?")
         ch = Heroes[curr_parameters.h_curr].choose_invent()
         if ch > -1:
-            inp = Heroes[curr_parameters.h_curr].inventory.arr[ch]
+            inp = Heroes[curr_parameters.h_curr].inventory.arr[ch].title
             TextMain.add_line("Whoom?")
             ch = choose_sp("another coex hero")
             if ch > -1:
@@ -848,13 +1028,15 @@ def choose_sp(inp):
 
 
 def fight(inp):
+    # обнулить делэй
     #saving parameters
     curr_parameters.save_hcurr()
     for q in range(3):
         Heroes[q].save_parameters()
     #loading enemies
-    curr_parameters.update("curr")
     curr_parameters.fight_location = Heroes[curr_parameters.h_curr].loc
+    curr_parameters.update("curr")
+    curr_parameters.effects("start_fight")
     if str(type(inp)) == "<class '__main__.ObjList'>":
         for q in range(inp.len()):
             if inp.arr[q] !=  "none":
@@ -866,61 +1048,68 @@ def fight(inp):
     if str(type(inp)) == "<class 'str'>":
         if inp != "none":
             curr_parameters.Enemies.add(Creatures.getCreature(inp))
-
     TextMain.clear()
     TextMain.add_line("The Battle Begun!")
-    TextMain_out(2)
+    TextMain_out(0.25)
 
     curr_parameters.turn_cnt = 0
     while (curr_parameters.Enemies.len() > 0) and (len(curr_parameters.Heroes_fighting) > 0):
-        curr_parameters.turn_cnt = curr_parameters.turn_cnt + 1
+        '''curr_parameters.turn_cnt = curr_parameters.turn_cnt + 1
+        curr_parameters.effects("start_fight_turn")'''
+        curr_parameters.update("curr")
         TextMain.clear()
+        '''curr_parameters.clear_chosen()
         TextMain.add_line('----TURN-' + str(curr_parameters.turn_cnt) + '------------------------------------------------------')
-        TextMain_out(1)
+        TextMain_out(0.25)'''
 
-        # atack and special effects of enemies
+        check = 0
+        while check == 0:
+            if (curr_parameters.Enemies.len() <= 0) or (len(curr_parameters.Heroes_fighting) <= 0):
+                check = 1
+            for q in range(3):
+                if (Heroes[q].loc == curr_parameters.fight_location) and (Heroes[q].delay <= 0):
+                    check = 1
+            for q in range(curr_parameters.Enemies.len()):
+                if curr_parameters.Enemies.arr[q].delay <= 0:
+                    check = 1
+            if check == 0:
+                for q in range(3):
+                    if (Heroes[q].loc == curr_parameters.fight_location):
+                        Heroes[q].delay = Heroes[q].delay - 1
+                for q in range(curr_parameters.Enemies.len()):
+                    curr_parameters.Enemies.arr[q].delay = curr_parameters.Enemies.arr[q].delay - 1
+
+        for q in range(3):
+            print(Heroes[q].delay)
+            print(curr_parameters.Enemies.arr[q].delay)
+
         for q in range(curr_parameters.Enemies.len()):
-            if q < curr_parameters.Enemies.len():
-                if (curr_parameters.Enemies.arr[q].type != "dist"):
-                    curr_parameters.Enemies.arr[q].atack_comb()
-                else:
-                    curr_parameters.Enemies.arr[q].atack_dist()
-                if (curr_parameters.Enemies.arr[q].special_effect != "none"):
-                    TextMain.add_line(curr_parameters.Enemies.arr[q].title + " uses " + curr_parameters.Enemies.arr[q].special_effect)
-                    action(curr_parameters.Enemies.arr[q].special_effect)
-                    TextMain_out(2)
+            if (q < curr_parameters.Enemies.len()) and (curr_parameters.Enemies.arr[q].delay <= 0):
+                curr_parameters.Enemies.arr[q].atack(q)
 
         for e in range(3):
-            if Heroes[e].loc == curr_parameters.fight_location:
+            if (Heroes[e].loc == curr_parameters.fight_location) and (Heroes[e].HP > 0) and (Heroes[e].delay <= 0):
                 curr_parameters.h_curr = e
 
-                if (curr_parameters.Enemies.len() <= 0) and (len(curr_parameters.Heroes_fighting) <= 0):
+                if (curr_parameters.Enemies.len() <= 0) or (len(curr_parameters.Heroes_fighting) <= 0):
                     break
 
-                #choosing action
-                TextMain.add_line("")
-                TextMain.add_line(Heroes[curr_parameters.h_curr].name + ' chooses action:')
-                TextMain.add_line('0 atack')
-                TextMain.add_line('1 use_inventory')
-                TextMain.add_line('2 escape')
-                update_graphics()
-                ch = choose(3)
-
-                #action
-                if ch == 0:
-                    Heroes[curr_parameters.h_curr].atack()
-                if ch == 1:
-                    Heroes[curr_parameters.h_curr].use_invent()
-                if ch == 2:
-                    action("move", "")
-                    TextMain.clear()
-                curr_parameters.chosen_enemy = -1
+                #heroes actions
+                Heroes[curr_parameters.h_curr].actions.clear()
+                Heroes[curr_parameters.h_curr].actions.add('atack')
+                Heroes[curr_parameters.h_curr].actions.add('escape')
+                for t in range(Heroes[curr_parameters.h_curr].inventory.len()):
+                    for y in range(Heroes[curr_parameters.h_curr].inventory.arr[t].fight_actions.len()):
+                        Heroes[curr_parameters.h_curr].actions.add(Heroes[curr_parameters.h_curr].inventory.arr[t].fight_actions.arr[y])
+                actions("fight_actions")
+                curr_parameters.clear_chosen()
                 update_graphics()
 
                 #deleting dead enemies
                 for q in range(curr_parameters.Enemies.len()):
                     if q < curr_parameters.Enemies.len():
                         if curr_parameters.Enemies.arr[q].HP < 1:
+                            curr_parameters.effects("enemy_dies")
                             TextMain.add_line(curr_parameters.Enemies.arr[q].title + " dies " + curr_parameters.Enemies.arr[q].final_effect)
                             action(curr_parameters.Enemies.arr[q].final_effect, "")
                             for scn in range(Locations.len()):
@@ -931,7 +1120,7 @@ def fight(inp):
 
     # final clearing
     curr_parameters.Enemies.clear()
-    curr_parameters.chosen_enemy = -1
+    curr_parameters.clear_chosen()
     curr_parameters.load_hcurr()
 
 def move():
@@ -957,34 +1146,29 @@ def trade():
         Things.getThing(curr_loc.trade_idx.arr[q]).info()
     ch = choose(curr_loc.trade_idx.len() + 1)
     if ch > 0:
-        print(curr_loc.trade_idx.arr[0])
-        print(ch)
-        print(curr_loc.trade_idx.arr[ch - 1])
         Heroes[curr_parameters.h_curr].add_invent(curr_loc.trade_idx.arr[ch - 1])
 
-def actions():
-    for q in range(Heroes[curr_parameters.h_curr].inventory.len()):
-        action(Things.getThing(Heroes[curr_parameters.h_curr].inventory.arr[q]).passive_effect, '')
-
-    curr_location = Locations.getLocation(Heroes[curr_parameters.h_curr].loc)
-    Heroes[curr_parameters.h_curr].actions = curr_location.actions
+def actions(inp):
     TextMain.clear()
-    TextMain.add_line(Locations.getLocation(Heroes[curr_parameters.h_curr].loc).title + ": " + Locations.getLocation(Heroes[curr_parameters.h_curr].loc).description)
     update_graphics()
-
     Heroes[curr_parameters.h_curr].actions.out()
     cnt = 0
-    ch_arr = np.zeros(3)
-    for q in range(3):
-        if (Heroes[curr_parameters.h_curr].coex_start[q] == 1) and (Heroes[curr_parameters.h_curr].coex[q] == 0) and (Heroes[q].HP > 0):
-            TextMain.add_line(str(Heroes[curr_parameters.h_curr].actions.len() + cnt) + ' Follow ' + Heroes[q].name)
-            ch_arr[cnt] = q
-            cnt = cnt + 1
-    ch = choose(Heroes[curr_parameters.h_curr].actions.len() + cnt)
-    if ch < Heroes[curr_parameters.h_curr].actions.len():
-        action(Heroes[curr_parameters.h_curr].actions.arr[ch], "")
+
+    if inp == "global_turn":
+        ch_arr = np.zeros(3)
+        for q in range(3):
+            if (Heroes[curr_parameters.h_curr].coex_start[q] == 1) and (Heroes[curr_parameters.h_curr].coex[q] == 0) and (Heroes[q].HP > 0):
+                TextMain.add_line(str(Heroes[curr_parameters.h_curr].actions.len() + cnt) + ' Follow ' + Heroes[q].name)
+                ch_arr[cnt] = q
+                cnt = cnt + 1
+        ch = choose(Heroes[curr_parameters.h_curr].actions.len() + cnt)
+        if ch < Heroes[curr_parameters.h_curr].actions.len():
+            action(Heroes[curr_parameters.h_curr].actions.arr[ch], "")
+        else:
+            Heroes[curr_parameters.h_curr].loc = Heroes[int(ch_arr[ch - Heroes[curr_parameters.h_curr].actions.len()])].loc
     else:
-        Heroes[curr_parameters.h_curr].loc = Heroes[int(ch_arr[ch - Heroes[curr_parameters.h_curr].actions.len()])].loc
+        ch = choose(Heroes[curr_parameters.h_curr].actions.len())
+        action(Heroes[curr_parameters.h_curr].actions.arr[ch], "")
 
 def rand():
     return (2/3 + 2/3*random.random())
@@ -1084,18 +1268,23 @@ while running:
                 keyinp = -1
             if inp == 1073741905:
                 keyinp = -3'''
-
-    lvl_up_check()
-
-    for q in range(Locations.len()):
-        action(Locations.arr[q].special_effect, '')
+    TextMain.add_line(Locations.getLocation(Heroes[curr_parameters.h_curr].loc).title + ": " + Locations.getLocation(
+        Heroes[curr_parameters.h_curr].loc).description)
     
-    curr_parameters.update("start")
+    curr_parameters.update("start_global_turn")
+    curr_parameters.effects("start_global_turn")
     for q in range(3):
         curr_parameters.update("curr")
         if Heroes[curr_parameters.h_curr].HP > 0:
+            curr_parameters.effects("start_hero_action")
             curr_parameters.h_curr = q
-            actions()
+            Heroes[curr_parameters.h_curr].actions = Locations.getLocation( Heroes[curr_parameters.h_curr].loc).actions
+            for t in range(Heroes[curr_parameters.h_curr].inventory.len()):
+                for y in range(Heroes[curr_parameters.h_curr].inventory.arr[t].actions.len()):
+                    Heroes[curr_parameters.h_curr].actions.add(
+                        Heroes[curr_parameters.h_curr].inventory.arr[t].actions.arr[y])
+            Heroes[curr_parameters.h_curr].actions.add("nothng")
+            #actions("global_turn")
             update_graphics()
     for q in range(3):
         curr_parameters.update("curr")
